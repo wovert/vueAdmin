@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>$on and $emit</title>
+    <!-- 开发环境版本，包含了有帮助的命令行警告 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+    <div id="root">
+        <button @click="boost">出发事件</button>
+    </div>
+    <script>
+        new Vue({
+            el: '#root',
+            data() {
+                return {
+                    message: 'hello vue'
+                }
+            },
+            created() {
+                // 绑定多个事件名
+                this.$on(['my_events', 'my_events2'], this.handleEvent)
+                console.log(this._events)
+
+                // 同一个事件绑定多个处理函数
+                // this.$on('my_events', this.handleEvents)
+                // this.$on('my_events', this.handleEvents2)
+            },
+            methods:{
+                handleEvents(e) {
+                    console.log(this.message, e)
+                },
+                handleEvents2(e) {
+                    console.log('handleEvents2', e)
+                },
+                boost() {
+                    this.$emit('my_event', 'my params')
+                }
+            }
+        });
+    </script>
+</body>
+</html>

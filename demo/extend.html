@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>extend 用法</title>
+    <!-- 开发环境版本，包含了有帮助的命令行警告 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+    <div id="root">
+        <Test :msg="message"></Test>
+    </div>
+    <script>
+        const component = Vue.extend({
+            template: '<div>{{msg}}</div>',
+            props: {
+                msg: {
+                    type: String,
+                    default: 'default messgae'
+                }
+            }
+        })
+        Vue.component('Test', component)
+
+        new Vue({
+            el: '#root',
+            data() {
+                return {
+                    message:"Test Extend Component"
+                }
+            }
+        });
+    </script>
+</body>
+</html>

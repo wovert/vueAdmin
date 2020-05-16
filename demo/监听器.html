@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>监听器 watch</title>
+    <!-- 开发环境版本，包含了有帮助的命令行警告 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+    <div id="root">
+        <h3>Watch 1:常见用法</h3>
+        <input v-model="message">
+        <span>{{copyMessage}}</span>
+    </div>
+    <div id="root2">
+        <h3>Watch 2:绑定用法</h3>
+        <input v-model="message">
+        <span>{{copyMessage}}</span>
+    </div>
+    <div id="root3">
+        <h3>Watch 3: deep + handler</h3>
+        <input v-model="deepMessage.a.b">
+        <span>{{copyMessage}}</span>
+    </div>
+    <div id="root4">
+        <h3>Watch 4: immediate</h3>
+        <input v-model="message">
+        <span>{{copyMessage}}</span>
+    </div>
+    <div id="root5">
+        <h3>Watch 5: 绑定多个handle</h3>
+        <input v-model="message">
+        <span>{{copyMessage}}</span>
+    </div>
+    <div id="root6">
+        <h3>Watch 6: 监听对象属性(节约性能)</h3>
+        <input v-model="deepMessage.a.b">
+        <span>{{copyMessage}}</span>
+    </div>
+    <script>
+        new Vue({
+            el: '#root',
+            watch: {
+                message(value) {
+                    this.copyMessage = value
+                }
+            },
+            data() {
+                return {
+                    message: 'Hello Vue',
+                    copyMessage: ''
+                }
+            }
+        })
+        new Vue({
+            el: '#root2',
+            watch: {
+                message: 'handleMessage'
+            },
+            data() {
+                return {
+                    message: 'Hello Vue',
+                    copyMessage: ''
+                }
+            },
+            methods: {
+                handleMessage(value) {
+                    this.copyMessage = value
+                }
+            }
+        })
+        new Vue({
+            el: '#root3',
+            watch: {
+                deepMessage: {
+                    handler: 'handleDeepMessage',
+                    deep: true
+                }
+
+            },
+            data() {
+                return {
+                    copyMessage: '',
+                    deepMessage: {
+                        a: {
+                            b: 'Deep Message'
+                        }
+                    }
+                }
+            },
+            methods: {
+                handleDeepMessage(value) {
+                    this.copyMessage = value.a.b
+                }
+            }
+        })
+        new Vue({
+            el: '#root4',
+            watch: {
+               message: {
+                   handler: 'handleMessage',
+                   immediate: true // 等于 created(){this.copyMessage=this.message}
+               }
+            },
+            data() {
+                return {
+                    message: 'Hello Vue',
+                    copyMessage: ''
+                }
+            },
+            methods: {
+                handleMessage(value) {
+                    this.copyMessage = value
+                }
+            }
+        })
+        new Vue({
+            el: '#root5',
+            watch:{
+                message: [
+                    {
+                        handler: 'handleMessage',
+                    },
+                    'handleMessage2',
+                    function(value) {
+                        this.copyMessage = this.copyMessage + '...'
+                    }
+                ]
+            },
+            data() {
+                return {
+                    message: 'Hello Vue',
+                    copyMessage: ''
+                }
+            },
+            methods: {
+                handleMessage(value) {
+                    this.copyMessage = value
+                },
+                handleMessage2(value) {
+                    this.copyMessage = this.copyMessage + '*'
+                }
+            }
+        })
+        new Vue({
+            el: '#root6',
+            watch: {
+                // 节约性能
+                'deepMessage.a.b': 'handleMessage'
+            },
+            data() {
+                return {
+                    deepMessage: {
+                        a: {
+                            b: 'Hello Vue'
+                        }
+                    },
+                    copyMessage: ''
+                }
+            },
+            methods: {
+                handleMessage(value) {
+                    this.copyMessage = value
+                }
+            }
+        })
+    </script>
+</body>
+</html>

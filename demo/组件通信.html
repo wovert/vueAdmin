@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>组件通信用法</title>
+    <!-- 开发环境版本，包含了有帮助的命令行警告 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+    <div id="root">
+        <Test></Test>
+    </div>
+    <script>
+        function registerPlugin() {
+            // 定义组件
+            Vue.component('Test', {
+                template: '<div>{{message}}<Test2 /></div>',
+                provide() {
+                    return {
+                        elTest: this // Test父组件自己打包成elTest提供给子组件
+                    }
+                },
+                data() {
+                    return {
+                        message: 'message from Test'
+                    }
+                },
+                methods: {
+                    change(component) {
+                        this.message = 'message from ' + component
+                    }
+                }
+            })
+            Vue.component('Test2', {
+                template: '<Test3 />'
+            })
+            Vue.component('Test3', {
+                template: '<button @click="changeMessage">change</button>',
+                inject: ['elTest'], // 引入父组件的实例
+                methods: {
+                    changeMessage() {
+                        this.elTest.change(this.$options._componentTag)
+                    }
+                }
+            })
+        }
+
+        Vue.use(registerPlugin)
+
+        new Vue({
+            el: '#root'
+        });
+    </script>
+</body>
+</html>

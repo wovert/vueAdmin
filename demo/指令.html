@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>directive 用法</title>
+    <!-- 开发环境版本，包含了有帮助的命令行警告 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+    <div id="root" v-loading="isLoading">
+        <div>{{data}}</div>
+        <button @click="update">更新</button>
+    </div>
+    <script>
+        // debugger
+        
+        // Vue.directive('loading', { // 绑定对象
+        //     // isLoading发生变化
+        //     update(el, binding, vnode) {
+        //         console.log(el, binding, vnode)
+        //         if (binding.value) {
+        //             const div = document.createElement('div')
+        //             div.innerText = '加载中...'
+        //             div.setAttribute('id', 'loading')
+        //             div.style.position = 'fixed'
+        //             div.style.left = 0
+        //             div.style.top = 0
+        //             div.style.width = '100%'
+        //             div.style.height = '100%'
+        //             div.style.display = 'flex'
+        //             div.style.justifyContent = 'center'
+        //             div.style.alignItems = 'center'
+        //             div.style.color = 'white'
+        //             div.style.background = 'rgba(0,0,0,.7)'
+        //             document.body.append(div)
+        //         } else {
+        //             document.body.removeChild(document.getElementById('loading'))
+        //         }
+        //     }
+        // })
+
+        // 绑定函数
+        Vue.directive('loading', function update(el, binding, vnode) {
+            console.log(el, binding, vnode)
+            if (binding.value) {
+                const div = document.createElement('div')
+                div.innerText = '加载中...'
+                div.setAttribute('id', 'loading')
+                div.style.position = 'fixed'
+                div.style.left = 0
+                div.style.top = 0
+                div.style.width = '100%'
+                div.style.height = '100%'
+                div.style.display = 'flex'
+                div.style.justifyContent = 'center'
+                div.style.alignItems = 'center'
+                div.style.color = 'white'
+                div.style.background = 'rgba(0,0,0,.7)'
+                document.body.append(div)
+            } else {
+                const div = document.getElementById('loading')
+                div && document.body.removeChild(document.getElementById('loading'))
+            }
+        })
+        // console控制台，{vue}
+        new Vue({
+            el: '#root',
+            data() {
+                return {
+                    isLoading: false,
+                    data: ''
+                }
+            },
+            methods: {
+                update() {
+                    this.isLoading = true
+                    setTimeout(() => {
+                        this.data = '用户数据'
+                        this.isLoading = false
+                    }, 3000)
+                }
+            }
+        });
+    </script>
+</body>
+</html>

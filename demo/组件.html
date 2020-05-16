@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>component 用法</title>
+    <!-- 开发环境版本，包含了有帮助的命令行警告 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+    <div id="root">
+        <Test :msg="message"></Test>
+    </div>
+    <script>
+        Vue.component('Test', {
+            template: '<div>{{msg}}</div>',
+            props: {
+                msg: {
+                    type: String,
+                    default: 'default messgae'
+                }
+            }
+        })
+        // console控制台，{vue}
+        new Vue({
+            el: '#root',
+            data() {
+                return {
+                    message:"Test Component"
+                }
+            },
+            methods: {
+                update() {
+                    this.isLoading = true
+                    setTimeout(() => {
+                        this.data = '用户数据'
+                        this.isLoading = false
+                    }, 3000)
+                }
+            }
+        });
+    </script>
+</body>
+</html>
