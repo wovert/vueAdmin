@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>class和style高级用法</title>
+    <!-- 开发环境版本，包含了有帮助的命令行警告 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <style>
+        .active {
+            color: black
+        }
+        .normal {
+            font-size: 20px;
+        }
+        .warning {
+            color:orange
+        }
+    </style>
+</head>
+<body>
+    <div id="root">
+        <div :class="'active normal'">数组绑定多个class</div>
+        <div :class="'active' + ' normal'">数组绑定多个class</div>
+        <div :class="['active', 'normal']">数组绑定多个class</div>
+        <div :class="(isActive ? 'active' : '') + ' normal'">数组包含对象绑定</div>
+        <div :class="[{active: isActive}, 'normal']">数组包含对象绑定</div>
+        <div :class="[showWarning(), 'normal']">数组包含方法绑定class</div>
+        <div :style="[warning, bold]">数组绑定多个style</div>
+        <div :style="[warning, mix()]">数组包含方法绑定style</div>
+        <div :style="{display: ['-webkit-box', '-ms-flexbox', 'flex']}">style多重值</div>
+    </div>
+    <script>
+        new Vue({
+            el: '#root',
+            data() {
+                return {
+                    isActive: true,
+                    warning: {
+                        color: 'orange'
+                    },
+                    bold: {
+                        fontWeight: 'bold'
+                    }
+                }
+            },
+            methods: {
+                showWarning() {
+                    return 'warning'
+                },
+                mix() {
+                    return {
+                        ...this.bold,
+                        fontSize: 20
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

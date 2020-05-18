@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>observable用法</title>
+    <!-- 开发环境版本，包含了有帮助的命令行警告 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <style>
+        .active {
+            color: black
+        }
+        .normal {
+            font-size: 20px;
+        }
+        .warning {
+            color:orange
+        }
+    </style>
+</head>
+<body>
+    <div id="root">
+        {{message}}
+        <button @click="change">Change</button>
+    </div>
+    <script>
+        // 
+        const state = Vue.observable({ message: 'Vue 2.6'})
+        const mutation = {
+            setMessage(value) {
+                state.message = value
+            }
+        }
+        new Vue({
+            el: '#root',
+            computed() {
+                return state.message
+            },
+            methods: {
+                change() {
+                    mutation.setMessage('Vue 3.0')
+                }
+            }
+        });
+    </script>
+</body>
+</html>
