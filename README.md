@@ -114,3 +114,243 @@ Vue Admin Management
 
 
 
+## element-ui安装
+
+1. 初始化项目
+
+```sh
+# vue create element-test
+```
+
+2. 安装
+
+```sh
+# npm i element-ui -S
+```
+
+3. Vue 插件
+
+```js
+// src/main.js
+import ElementUI from 'element-ui'
+Vue.use(ElementUI)
+```
+
+4. 引入样式
+- App.vue
+```js
+import 'element-ui-/lib/theme-chalk/index.css'
+
+<div id="app">
+  <el-button @click="show">按钮</el-button>
+</div>
+
+show() {
+  this.$message.success('element-ui提示')
+}
+```
+
+5. 按需加载
+
+```sh
+# npm install babel-plugin-component -D
+# vim babel.config.js
+  "plugins": [
+      [
+        "component",
+        {
+          "libraryName": "element-ui",
+          "styleLibraryName": "theme-chalk"
+        }
+      ]
+    ]
+# src/main.js
+import { Button, Message } from 'element-ui'
+Vue.component(Button.name, Button)
+Vue.prototype.$message = Message
+```
+
+6. 插件引用
+
+```sh
+# vue add element
+```
+
+## vue-element-admin
+
+```sh
+# git clone https://github.com/PanJiaChen/vue-element-admin.git
+# cd vue-element-admin
+# npm i
+# npm run dev
+```
+
+### 项目精简
+
+- 删除 src/view下的源码，保留
+  - dashboard: 首页
+  - error-page：异常页面
+  - login: 登录
+  - redirect: 重定向
+- 对 src/router/index 修改
+- 删除 src/router/modules 目录
+- 删除 src/vendor 目录
+
+生产环境项目，建议将 components 的内容也进行清理，以免影响访问速度，或者直接使用 vue-admin-template 构建项目，课程选择 vue-element-admin 初始化项目，是因为 vue-element-admin 实现了登录模块，包括token校验，网路请求等，可以简化开发工作
+
+### 项目配置
+
+- 源码调试 - vue.config.js
+
+```js
+config
+.when(process.env.NODE_ENV === 'development',
+config => config.devtool('cheap-source-map')
+)
+
+// 改成
+config
+  .when(process.env.NODE_ENV === 'development',
+  config => config.devtool('source-map'))
+  // config => config.devtool('eval'))
+```
+
+将cheap-source-map 改为 source-map，如果提升构建速度可以改为 eval
+
+开发时保持eval配置，已增加构建速度，当出现需要源码调试排查问题时改为 source-map
+
+## admin api
+
+```sh
+# mkdir admin-api
+# npm init -y
+# npm i -S express
+# npm i -S boom 快速生成依赖信息
+# vim app.js
+const express = require('express')
+
+```
+
+## 项目需求分析
+
+### 项目技术架构
+
+- 三个应用
+  - 管理后台(管理电子书)
+  - 小程序(查阅电子书)
+  - H5(阅读器)
+
+### 项目目标
+
+- 完全在本地搭建开发环境
+- 贴近企业真实应用场景
+
+> 依赖别人提供的 API 将无法真正理解项目的运作逻辑
+
+### 技术难点分析
+
+#### 登录
+
+- 用户名密码校验
+- token 生成、校验和路由过滤（哪些借口需要 token）
+- 前段 token 校验和重定向
+
+#### 电子书上传
+
+- 文件上传
+- 静态资源服务器
+
+#### 电子书解析
+
+- epub 原理
+- zip 解压
+- xml 解析
+
+#### 电子书增删改
+
+- mysql 数据库应用
+- 前后端异常处理
+
+### epub 电子书
+
+> epub 是一种电子书格式，本质是一个 zip 压缩包
+
+demo.epub 文件名改成 demo.zip 并解压 demo.zip文件
+
+- META-INF：
+- content.opf: 配置文件
+  - metadata
+  - spine: 阅读顺序
+  - guide: 摘要
+  - toc.ncx: 目录
+
+### 静态资源服务器 nginx 配置
+
+- mac: brew install nginx
+  - /usr/local/Cellar/nginx/VERSION/bin
+  - which nginx
+
+- /usr/local 无法写入问题
+  - 解决 MacOS operation not permitted
+    - macOS 从 EI Capitan(10.11) 后加入了 Rootless 机制，很多系统目录不再能够随心所欲的读写了，即使设置 root 权限也不行。
+    - 重启按住 Command + R，进入恢复模式，打开 Terminal
+    - `csrutil disable`
+    - 之后再次进入系统就可以获取修改 /usr 的写入权限了，打开 csrutil 方法是进入恢复模式，在 Terminal中
+    - `csrutil enable`
+
+- 配置 nginx.conf
+  - 添加当前登录用户为：user sam owner;
+  - 在结尾大括号之前添加：`incldue /Users/sam/upload/upload.conf`
+    - /Users/sam/upload 资源文件路径
+    - upload.conf 额外的配置文件
+
+  - Windows 路径配置错误启动出现 500 异常
+    - windows 中不允许在 Nginx 配置文件中出现转义字符，比如 \resource 这样的路径会被编译为：esrouce，从而导致 Nginx 启动异常，可以更换目录名称来解决这个问题。
+
+```conf
+server {
+  charset utf-8;
+  listen 8089;
+  root /Users/sam/upload/;
+  autoindex on;
+  add_header Cache-Control "no-cache, must-revalidate";
+  location / {
+    add_header Access-Control-Allow-Origin *;
+  }  
+}
+
+server {
+  listen 443 default ssl;
+  server_name https_host;
+  root /Users/sam/upload/;
+  autoindex on;
+  add_header Cache-Control "no-cache, must-revalidate";
+  location / {
+    add_header Access-Control-Allow-Origin *;
+  }
+  ssl_certificate /Uses/sam/Desktop/https/book_youbaobao_xyz.pem;
+  ssl_certificate_key /Usrs/sam/Desktop/https/book_youbaobao_xyz.key;
+  ssl_session_timeout 5m;
+  ssl_protocols SSLv3 TLSv1;
+  ssl_ciphers ALL:!ADH:!EXPORT56:RC4+RSA:...
+  ssl_prefer_server_ciphers on;
+}
+```
+
+```sh
+# sudo nginx -t
+# sudo nginx
+# sudo nginx -s reload
+# sudo nginx -s stop
+```
+
+- 将 epub 和 epub2 目录放入 /Users/sam/upload/
+
+### MySQL
+
+- mac
+  - 启动
+    - cd /usr/local/mysql-VERSION/bin
+    - ./mysqld
+  - 初始化数据库
+    - 
