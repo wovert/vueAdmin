@@ -224,11 +224,11 @@ config
 ```sh
 # mkdir admin-api
 # npm init -y
-# npm i -S express
+# npm i -S express body-parser cors mysql crypto jsonwebtoken express-validator express-jwt
+# npm i -g nodemon
 # npm i -S boom 快速生成依赖信息
 # vim app.js
 const express = require('express')
-
 ```
 
 ## 项目需求分析
@@ -417,3 +417,13 @@ server {
       - `sidebar-item`: `el-submenu` 迭代嵌套了 `sidebar-item` 组件，在 `sidebar-item` 组件中有两点变化：
         - 设置 `is-nest` 属性为 `true`
         - 根据 `child.path` 生成了 `base-path` 属性传入 `sidebar-item` 组件
+
+
+## 接口开发
+
+`curl http://localhost:18080/usr/login -X POST -d "username=admin&password=123456"`
+
+
+### JWT
+
+[jwt.io](https://jwt.io)
