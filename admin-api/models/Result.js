@@ -16,7 +16,7 @@ class Result {
             this.data = data
             this.msg = msg
             if (options) {
-            this.options = options
+                this.options = options
             }
         }
     }

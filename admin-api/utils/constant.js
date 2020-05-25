@@ -1,6 +1,6 @@
 const { env } = require('./env')
-const UPLOAD_PATH = env === 'dev' ? 'D:\\development\\upload\\admin-upload-ebook' : '/root/upload/admin-upload/ebook'
-const UPLOAD_URL = env === 'dev' ? 'https://localhost:8989/admin-upload-eboook' : 'https://domain.com/admin-upload-ebook'
+const UPLOAD_PATH = env === 'dev' ? 'D:/development/upload/admin-upload-ebook' : '/root/upload/admin-upload/ebook'
+const UPLOAD_URL = env === 'dev' ? 'https://localhost:9898/admin-upload-eboook' : 'https://domain.com/admin-upload-ebook'
 
 module.exports = {
   MIME_TYPE_EPUB: 'application/epub+zip',
