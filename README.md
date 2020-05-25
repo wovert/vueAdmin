@@ -224,7 +224,7 @@ config
 ```sh
 # mkdir admin-api
 # npm init -y
-# npm i -S express body-parser cors mysql crypto jsonwebtoken express-validator express-jwt
+# npm i -S express body-parser cors mysql crypto jsonwebtoken express-validator express-jwt multer xml2js adm-zip
 # npm i -g nodemon
 # npm i -S boom 快速生成依赖信息
 # vim app.js
@@ -427,3 +427,27 @@ server {
 ### JWT
 
 [jwt.io](https://jwt.io)
+
+## 电子书解析
+
+### 构建函数
+
+Book对象分为两种场景，第一种是直接从电子书文件中解析出 Book 对象，第二种是从 data 对象中生成 Book 对象
+
+```js
+constructor(file, data) {
+  if (file) {
+    // 从电子书文件中解析出 Book 对象
+    this.createBookFromFile(file)
+  } else if (data) {
+    // data 对象中生成 Book 对象
+    this.createBookFromData(data)
+  }
+}
+```
+
+### 电子书解析
+
+初始化后，可以调用 Book 实例的 parse 方法解析电子书，这里使用了 epub 库，直接将 epub 库源码集成到项目中：
+
+- epub 库集成：[epub库](https://github.com/julien-c/epub)，将 epub.js 复制到 /utils/epub.js
