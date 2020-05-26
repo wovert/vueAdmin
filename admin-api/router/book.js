@@ -35,13 +35,12 @@ router.post(
  */
 router.post('/', (req, res, next) => {
   const decode = jwtDecode(req) // 解析 jwt
-  console.log(decode)
+  // console.log(decode)
   if (decode && decode.username) {
     req.body.username = decode.username
   }
   const book = new Book(null, req.body)
   // console.log(book)
-
   BookService.insertBook(book).then(() => {
     new Result('添加电子书成功').success(res)
   }).catch(err => {

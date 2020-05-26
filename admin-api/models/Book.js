@@ -178,6 +178,8 @@ class Book {
         const xml = fs.readFileSync(ncxFilePath, 'utf-8')
         const dir = path.dirname(ncxFilePath).replace(UPLOAD_PATH, '')
         const fileName = this.fileName
+        const unzipPath = this.unzipPath
+
         xml2js(xml, {
           explicitArray: false,
           ignoreAttrs: false
@@ -207,7 +209,7 @@ class Book {
 
                 const src = chapter.content['$'].src // 相对路径
                 chapter.id = src
-                chapter.href = `${dir}/${src}`
+                chapter.href = `${dir}/${src}`.replace(unzipPath, '')
                 chapter.text = `${UPLOAD_URL}${dir}/${src}`
                 chapter.label = nav.navLabel.text || ''
                 // console.log(chapter.text)

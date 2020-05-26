@@ -38,7 +38,8 @@ async function insertContents(book) {
         'pid',
         'navId'
       ])
-      console.log('_content:', _content)
+      // console.log('_content:', _content)
+      await db.insert(_content, 'contents')
     }
   }
 }
