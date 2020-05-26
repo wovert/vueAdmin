@@ -1,4 +1,5 @@
 const fs = require('fs')
+const path = require('path')
 const xml2js = require('xml2js').parseString
 const Epub = require('../utils/epub')
 const { MIME_TYPE_EPUB, UPLOAD_URL, UPLOAD_PATH } = require('../utils/constant')
@@ -129,6 +130,7 @@ class Book {
     if (fs.existsSync(ncxFilePath)) {
       return new Promise((resolve, reject) => {
         const xml = fs.readFileSync(ncxFilePath, 'utf-8')
+        const dir = path.dirname(ncxFilePath).replace(UPLOAD_PATH, '')
         const fileName = this.fileName
         xml2js(xml, {
           explicitArray: false,
@@ -141,28 +143,46 @@ class Book {
             // console.log(JSON.stringify(navMap))
             if (navMap.navPoint && navMap.navPoint.length > 0) {
               navMap.navPoint = findParent(navMap.navPoint)
-              const newNavMap = flatten(navMap.navPoint)
+              const newNavMap = flatten(navMap.navPoint) // 电子书目录
               
               const chapters = []
               // console.log(epub.flow)
-              epub.flow.forEach((chapter, index) => {
+              // epub.flow.forEach((chapter, index) => {
+                newNavMap.forEach((chapter, index) => {
                 if (index + 1 > newNavMap.length) {
                   return
                 }
+
                 const nav = newNavMap[index]
-                chapter.text = `${UPLOAD_URL}/unzip/${fileName}/${chapter.href}`
+                // chapter.text = `${UPLOAD_URL}/unzip/${fileName}/${chapter.href}`
+                // chapter.label = nav && nav.navLabel ? nav.navLabel.text : ''
+                // chapter.level = nav.level
+                // chapter.pid = nav.pid
+
+                const src = chapter.content['$'].src // 相对路径
+                chapter.text = `${UPLOAD_URL}${dir}/${src}`
+                chapter.label = nav.navLabel.text || ''
                 // console.log(chapter.text)
 
-                chapter.label = nav && nav.navLabel ? nav.navLabel.text : ''
-
-                chapter.level = nav.level
-                chapter.pid = nav.pid
+                
                 chapter.navId = nav['$'].id
                 chapter.fileName = fileName
                 chapter.order = index + 1
                 chapters.push(chapter)
               })
-              resolve(chapters)
+              const chapterTree = []
+              // 多级层级结构
+              chapters.forEach(c => {
+                c.children = []
+                if (c.pid === '') {
+                  chapterTree.push(c)
+                } else {
+                  const parent = chapters.find(_ => _.navId === c.pid)
+                  parent.children.push(c)
+                }
+              })
+
+              resolve({chapters, chapterTree})
               // console.log(chapters)
             } else {
               reject(new Error('目录解析失败，目录数为0'))
@@ -234,9 +254,10 @@ class Book {
 
             try {
               this.unzip() // 解压
-              this.parseContents(epub).then((chapters) => {
+              this.parseContents(epub).then(({chapters, chapterTree}) => {
                 // console.log(chapters)
                 this.contents = chapters
+                this.contentsTree = chapterTree
                 epub.getImage(cover, handleGetImage)
               })
             } catch (e) {
