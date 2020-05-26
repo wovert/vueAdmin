@@ -1,7 +1,7 @@
 const mysql = require('mysql')
 const config = require('./config')
 const { debug } = require('../utils/constant')
-
+const { isObject } = require('../utils')
 function connect() {
   return mysql.createConnection({
 		host: config.host,
@@ -49,7 +49,72 @@ function queryOne(sql) {
 	})
 }
 
+function insert(model, tableName) {
+	return new Promise((resolve, reject) => {
+    if (!isObject(model)) {
+      reject(new Error('插入数据库失败，插入数据非对象'))
+    } else {
+      const keys = []
+      const values = []
+      Object.keys(model).forEach(key => {
+        if (model.hasOwnProperty(key)) {
+          keys.push(`\`${key}\``) // 避免sql关键词
+          values.push(`'${model[key]}'`)
+        }
+      })
+      if (keys.length > 0 && values.length > 0) {
+        let sql = `INSERT INTO \`${tableName}\` (`
+        const keysString = keys.join(',')
+        const valuesString = values.join(',')
+        sql += `${keysString}) VALUES (${valuesString})`
+        debug && console.log('====插入数据：' + sql)
+        const conn = connect()
+        try {
+          conn.query(sql, (err, result) => {
+            if (err) {
+              reject(err)
+            } else {
+              resolve(result)
+            }
+          })
+        } catch (e) {
+          reject(e)
+        } finally {
+          conn.end()
+        }
+      } else {
+        reject(new Error('插入数据库失败，对象中没有任何属性'))
+      }
+    }
+		// querySql(sql).then(results => {
+		// 	if (results && results.length === 1) {
+		// 		resolve(results[0])
+		// 	} else {
+		// 		resolve(null)
+		// 	}
+		// }).catch(error => {
+		// 	reject(error)
+		// })
+	})
+}
+
+function update(sql) {
+	return new Promise((resolve, reject) => {
+		querySql(sql).then(results => {
+			if (results && results.length === 1) {
+				resolve(results[0])
+			} else {
+				resolve(null)
+			}
+		}).catch(error => {
+			reject(error)
+		})
+	})
+}
+
 module.exports = {
 	querySql,
-	queryOne
+  queryOne,
+  insert,
+  update
 }
