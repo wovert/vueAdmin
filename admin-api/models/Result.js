@@ -6,37 +6,37 @@ const {
 } = require('../utils/constant')
 
 class Result {
-    constructor(data, msg = '操作成功', options) {
-        this.data = null
-        if (arguments.length === 0) {
-            this.msg = '操作成功'
-        } else if (arguments.length === 1) {
-            this.msg = data
-        } else {
-            this.data = data
-            this.msg = msg
-            if (options) {
-                this.options = options
-            }
-        }
+  constructor(data, msg = '操作成功', options) {
+    this.data = null
+    if (arguments.length === 0) {
+      this.msg = '操作成功'
+    } else if (arguments.length === 1) {
+      this.msg = data
+    } else {
+      this.data = data
+      this.msg = msg
+      if (options) {
+        this.options = options
+      }
     }
+  }
 
 	createResult() {
-      if (!this.code) {
-        this.code = CODE_SUCCESS
-      }
-      let base = {
-        code: this.code,
-        msg: this.msg
-      }
-      if (this.data) {
-        base.data = this.data
-      }
-      if (this.options) {
-        base = { ...base, ...this.options }
-      }
-	  debug && console.log('====返回数据：', base)
-      return base
+    if (!this.code) {
+      this.code = CODE_SUCCESS
+    }
+    let base = {
+      code: this.code,
+      msg: this.msg
+    }
+    if (this.data) {
+      base.data = this.data
+    }
+    if (this.options) {
+      base = { ...base, ...this.options }
+    }
+    // debug && console.log('====返回数据：', base)
+    return base
 	}
 
 	json(res) {
@@ -44,9 +44,9 @@ class Result {
 	}
 
 	success(res) {
-		// throw new Error('error...')
-		this.code = CODE_SUCCESS
-		this.json(res)
+    // throw new Error('error...')
+    this.code = CODE_SUCCESS
+    this.json(res)
 	}
 
 	fail(res) {

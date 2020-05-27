@@ -80,4 +80,26 @@ router.put('/', (req, res, next) => {
   })
 })
 
+/**
+ * get categories
+ */
+router.get('/categories', (req, res, next) => {
+  BookService.getCategories().then(categories => {
+    new Result(categories, '获取分类成功').success(res)
+  }).catch(err => {
+    next(boom.badImplementation(err))
+  })
+})
+
+/**
+ * Book list api
+ */
+router.get('/list', (req, res, next) => {
+  BookService.getListBook(req.query).then(({ list }) => {
+    new Result({ list }, '获取图书列表成功').success(res)
+  }).catch(err => {
+    next(boom.badImplementation(err))
+  })
+})
+
 module.exports = router
