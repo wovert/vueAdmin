@@ -224,7 +224,7 @@ config
 ```sh
 # mkdir admin-api
 # npm init -y
-# npm i -S express body-parser cors mysql crypto jsonwebtoken express-validator express-jwt multer xml2js adm-zip
+# npm i -S express body-parser cors mysql crypto jsonwebtoken express-validator express-jwt multer xml2js adm-zip lodash
 # npm i -g nodemon
 # npm i -S boom 快速生成依赖信息
 # vim app.js

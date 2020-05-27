@@ -46,19 +46,38 @@ router.post('/', (req, res, next) => {
   }).catch(err => {
     next(boom.badImplementation(err)) // return 500
   })
-  // if (!req.file || req.file.length == 0) {
-  //   new Result('上传电子书失败').fail(res)
-  // } else {
-      // const book = new Book(req.file)
-      // book.parse()
-      //     .then(data => {
-      //     console.log('bookData:', data)
-      //     new Result(data, '上传电子书成功').success(res)
-      //     })
-        //     .catch(err => {
-        //     next(boom.badImplementation(err)) // return 500
-        //     })
-        // }
+})
+
+/**
+ * get book
+ */
+router.get('/', (req, res, next) => {
+  const { fileName } = req.query
+  if (!fileName) {
+    next(boom.badRequest(new Error('参数fileName不能为空')))
+  } else {
+    BookService.getBook(fileName).then(book => {
+      new Result(book, '获取图书信息成功').success(res)
+    }).catch(err => {
+      next(boom.badImplementation(err))
+    })
+  }
+})
+
+/**
+ * Update book
+ */
+router.put('/', (req, res, next) => {
+  const decode = jwtDecode(req) // 解析 jwt
+  if (decode && decode.username) {
+    req.body.username = decode.username
+  }
+  const book = new Book(null, req.body)
+  BookService.updatetBook(book).then(() => {
+    new Result('更新电子书成功').success(res)
+  }).catch(err => {
+    next(boom.badImplementation(err))
+  })
 })
 
 module.exports = router

@@ -2,7 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const xml2js = require('xml2js').parseString
 const Epub = require('../utils/epub')
-const { MIME_TYPE_EPUB, UPLOAD_URL, UPLOAD_PATH } = require('../utils/constant')
+const { MIME_TYPE_EPUB, OLD_UPLOAD_URL, UPLOAD_URL, UPLOAD_PATH } = require('../utils/constant')
 
 class Book {
   constructor(file, data) {
@@ -10,6 +10,63 @@ class Book {
       this.createBookFromFile(file)
     } else {
       this.createBookFromData(data)
+    }
+  }
+
+  static genPath(path) {
+    if (path.startsWith('/')) {
+      path = `/${path}`
+    }
+    return `${UPLOAD_PATH}${path}`
+  }
+
+  static pathExists(path) {
+    if (path.startsWith(UPLOAD_PATH)) {
+      return fs.existsSync(path)
+    } else {
+      return fs.existsSync(Book.genPath(path))
+    }
+  }
+
+  static genCoverUrl(book) {
+    const { cover } = book
+    if (book.updateType === 0) {
+      if (cover) {
+        if (cover.startsWith('/')) {
+          return `${OLD_UPLOAD_URL}${cover}`
+        } else {
+          return `${OLD_UPLOAD_URL}/${cover}`
+        }
+      } else {
+        return null
+      }
+    } else {
+      if (cover) {
+        if (cover.startsWith('/')) {
+          return `${UPLOAD_URL}${cover}`
+        } else {
+          return `${UPLOAD_URL}/${cover}`
+        }
+      } else {
+        return null
+      }
+    }
+  }
+
+  static getContentsTree(contents) {
+    if (contents) {
+      const contentsTree = []
+      // 多级层级结构
+      contents.forEach(c => {
+        c.children = []
+        if (c.pid === '') {
+          contentsTree.push(c)
+        } else {
+          const parent = contents.find(_ => _.navId === c.pid)
+          parent.children.push(c)
+        }
+      })
+      return contentsTree
     }
   }
 
@@ -121,13 +178,6 @@ class Book {
     return this.contents
   }
 
-  static genPath(path) {
-    if (path.startsWith('/')) {
-      path = `/${path}`
-    }
-    return `${UPLOAD_PATH}${path}`
-  }
-
   /**
    * 解析目录
    * @param {*} epub 
@@ -220,17 +270,21 @@ class Book {
                 chapter.order = index + 1
                 chapters.push(chapter)
               })
-              const chapterTree = []
-              // 多级层级结构
-              chapters.forEach(c => {
-                c.children = []
-                if (c.pid === '') {
-                  chapterTree.push(c)
-                } else {
-                  const parent = chapters.find(_ => _.navId === c.pid)
-                  parent.children.push(c)
-                }
-              })
+
+              
+              // const chapterTree = []
+              // // 多级层级结构
+              // chapters.forEach(c => {
+              //   c.children = []
+              //   if (c.pid === '') {
+              //     chapterTree.push(c)
+              //   } else {
+              //     const parent = chapters.find(_ => _.navId === c.pid)
+              //     parent.children.push(c)
+              //   }
+              // })
+
+              const chapterTree = Book.getContentsTree(chapters)
 
               resolve({chapters, chapterTree})
               // console.log(chapters)
@@ -319,6 +373,24 @@ class Book {
       epub.parse()
     })
   }
+  /**
+   * 资源删除
+   */
+  reset() {
+    if (Book.pathExists(this.filePath)) {
+      fs.unlinkSync(Book.genPath(this.filePath))
+      // console.log('删除文件...')
+    }
+    if (Book.pathExists(this.coverPath)) {
+      fs.unlinkSync(Book.genPath(this.coverPath))
+      // console.log('删除封面...')
+    }
+    if (Book.pathExists(this.unzipPath)) {
+      // node低版本不支持 recursive
+      fs.rmdirSync(Book.genPath(this.unzipPath), { recursive: true })
+      // console.log('删除解压目录...')
+    }
+  } 
 }
 
 module.exports = Book
