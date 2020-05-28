@@ -95,11 +95,27 @@ router.get('/categories', (req, res, next) => {
  * Book list api
  */
 router.get('/list', (req, res, next) => {
-  BookService.getListBook(req.query).then(({ list }) => {
-    new Result({ list }, '获取图书列表成功').success(res)
+  BookService.getListBook(req.query).then(({ list, total, page, pageSize }) => {
+    new Result({ list, total, page: +page, pageSize: +pageSize }, '获取图书列表成功').success(res)
   }).catch(err => {
     next(boom.badImplementation(err))
   })
+})
+
+/**
+ * Delete book
+ */
+router.delete('/', (req, res, next) => {
+  const { fileName } = req.query
+  if (!fileName) {
+    next(boom.badRequest(new Error('参数fileName不能为空')))
+  } else {
+    BookService.deleteBook(fileName).then(book => {
+      new Result(book, '删除图书信息成功').success(res)
+    }).catch(err => {
+      next(boom.badImplementation(err))
+    })
+  }
 })
 
 module.exports = router
