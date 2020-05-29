@@ -451,3 +451,11 @@ constructor(file, data) {
 初始化后，可以调用 Book 实例的 parse 方法解析电子书，这里使用了 epub 库，直接将 epub 库源码集成到项目中：
 
 - epub 库集成：[epub库](https://github.com/julien-c/epub)，将 epub.js 复制到 /utils/epub.js
+
+## 自动远程登录
+
+```sh
+$ ssh-keygen -t rsa
+$ ssh-copy-id -i ~/.ssh/id_rsa.pub root@远程IP地址
+$ ssh root@远程IP地址
+```
